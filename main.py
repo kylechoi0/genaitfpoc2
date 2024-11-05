@@ -332,8 +332,24 @@ with st.sidebar:
         label_visibility="collapsed"
     )
 
+    def get_dataset_id(plant_name):
+        # 매핑 딕셔너리 정의
+        plant_to_key = {
+            "GS포천그린에너지": "DATASET_ID_POCHEON",
+            "GS동해전력": "DATASET_ID_DONGHAE",
+            "GS반월열병합발전": "DATASET_ID_BANWOL",
+            "GS구미열병합발전": "DATASET_ID_GUMI"
+        }
+        
+        # 매핑된 키 가져오기
+        key = plant_to_key.get(plant_name)
+        if not key:
+            return None
+        
+        return st.secrets.get(key)
+
     # 선택된 사업장의 dataset_id 가져오기
-    dataset_id = st.secrets["DATASET_IDS"].get(selected_plant)
+    dataset_id = get_dataset_id(selected_plant)
 
     # dataset_id가 없는 경우 처리
     if not dataset_id:

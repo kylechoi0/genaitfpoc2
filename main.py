@@ -406,8 +406,8 @@ with st.sidebar:
                     st.rerun()
 
     # 파일 업로드 섹션 수정
-    st.markdown('<div class="section-title">📁 파일 전처리~업로드</div>', unsafe_allow_html=True)
-    st.markdown('<div class="upload-section">업로드 시, 자동 전처리 후 RAG에 저장됩니다.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📁 문서 자동 전처리/업로드</div>', unsafe_allow_html=True)
+    st.markdown('<div class="upload-section">배포 환경에서는 처리 속도가 느림 <br> 필요 시, 문서 메일 접수 (cjk1306@gspoge.com)</div>', unsafe_allow_html=True)
     with st.form(key='file_upload_form'):
         uploaded_files = st.file_uploader(
             "",

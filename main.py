@@ -242,6 +242,16 @@ st.markdown("""
             background-color: #fff3e0;
             color: #e65100;
         }
+
+        [data-testid="stSidebar"][aria-expanded="true"]{
+            min-width: 450px;
+            max-width: 450px;
+        }
+        [data-testid="stSidebar"][aria-expanded="false"]{
+            min-width: 450px;
+            max-width: 450px;
+            margin-left: -450px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -293,7 +303,7 @@ with st.sidebar:
     # 제목 추가
     st.markdown("""
         <div style='padding: 0.8rem; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 1rem;'>
-            <h3 style='font-size: 1rem; color: #1a73e8; text-align: center; margin: 0;'>Gen AI TF - 설비 Manual Agent</h3>
+            <h3 style='font-size: 1rem; color: #1a73e8; text-align: center; margin: 0;'>Gen AI TF : E&R POC2 설비 Manual Agent</h3>
             <div style='font-size: 0.8rem; color: #5f6368; margin-top: 0.5rem;'>
                 <p style='margin: 0;'>💡 질문 예시:</p>
                 <ul style='margin: 0.2rem 0; padding-left: 1rem;'>
@@ -407,7 +417,7 @@ with st.sidebar:
 
     # 파일 업로드 섹션 수정
     st.markdown('<div class="section-title">📁 문서 자동 전처리/업로드</div>', unsafe_allow_html=True)
-    st.markdown('<div class="upload-section">배포 환경에서는 처리 속도가 느림 <br> 필요 시, 문서 메일 접수 (cjk1306@gspoge.com)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="upload-section">배포 환경에서는 처리 속도가 느립니다. <br> 필요 시, 문서 메일 접수 (cjk1306@gspoge.com)</div>', unsafe_allow_html=True)
     with st.form(key='file_upload_form'):
         uploaded_files = st.file_uploader(
             "",

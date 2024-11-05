@@ -89,26 +89,32 @@ def preprocess_files(uploaded_files, dataset_id):
             'workflow_id': '6a157fa1-8f3d-4bde-8d8c-78df231a724c'
         }
         
-        # 타임아웃 시간을 늘리고 재시도 로직 추가
         max_retries = 3
         retry_count = 0
+        total_timeout = 900  # 전체 타임아웃 15분으로 설정
         
         while retry_count < max_retries:
             try:
+                # 워크플로우 요청 전송
                 workflow_response = requests.post(
                     PREPROCESS_API_URL,
                     headers=headers,
                     json=workflow_payload,
-                    timeout=600  # 타임아웃을 10분으로 증가
+                    timeout=total_timeout  # 타임아웃 15분
                 )
-                break  # 성공시 루프 종료
-            except requests.exceptions.Timeout:
+                
+                if workflow_response.status_code == 200:
+                    break
+                elif workflow_response.status_code == 504:
+                    raise requests.exceptions.Timeout
+                    
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
                 retry_count += 1
                 if retry_count == max_retries:
                     st.error("서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
                     return None
                 st.warning(f"처리 시간 초과. 재시도 중... ({retry_count}/{max_retries})")
-                time.sleep(5)  # 5초 대기 후 재시도
+                time.sleep(10)  # 10초 대기 후 재시도
         
         if workflow_response.status_code != 200:
             st.error(f"상세 오류 정보:")

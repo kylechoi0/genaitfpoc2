@@ -54,10 +54,6 @@ your-repo-name/
     └── secrets.toml.example # secrets.toml의 예시
 ```
 
-## 기여
+## 문의
 
-기여를 원하신다면, 이 저장소를 포크한 후 변경 사항을 커밋하고 풀 리퀘스트를 제출해 주세요.
-
-## 라이센스
-
-이 프로젝트는 MIT 라이센스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
+- GS E&R 52g Crew Kyle (최정규 주임 / kyle@52g.team)

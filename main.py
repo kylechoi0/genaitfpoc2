@@ -243,14 +243,108 @@ st.markdown("""
             color: #e65100;
         }
 
+        /* 기본 데스크톱 환경 */
         [data-testid="stSidebar"][aria-expanded="true"]{
-            min-width: 450px;
-            max-width: 450px;
+            min-width: 400px;
+            max-width: 400px;
         }
         [data-testid="stSidebar"][aria-expanded="false"]{
-            min-width: 450px;
-            max-width: 450px;
-            margin-left: -450px;
+            min-width: 400px;
+            max-width: 400px;
+            margin-left: -400px;
+        }
+        
+        /* 태블릿 환경 */
+        @media (max-width: 1200px) {
+            [data-testid="stSidebar"][aria-expanded="true"]{
+                min-width: 350px;
+                max-width: 350px;
+            }
+            [data-testid="stSidebar"][aria-expanded="false"]{
+                min-width: 350px;
+                max-width: 350px;
+                margin-left: -350px;
+            }
+            
+            /* 버튼 크기 조절 */
+            .sidebar .stButton > button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            /* 섹션 제목 크기 조절 */
+            .section-title {
+                font-size: 1rem !important;
+                margin-top: 1.2rem !important;
+            }
+            
+            /* 파일 업로드 섹션 조절 */
+            .upload-section {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* 모바일 환경 */
+        @media (max-width: 768px) {
+            [data-testid="stSidebar"][aria-expanded="true"]{
+                min-width: 300px;
+                max-width: 300px;
+            }
+            [data-testid="stSidebar"][aria-expanded="false"]{
+                min-width: 300px;
+                max-width: 300px;
+                margin-left: -300px;
+            }
+            
+            /* 버튼 크기 조절 */
+            .sidebar .stButton > button {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            /* 섹션 제목 크기 조절 */
+            .section-title {
+                font-size: 0.9rem !important;
+                margin-top: 1rem !important;
+                margin-bottom: 0.6rem !important;
+            }
+            
+            /* 파일 업로드 섹션 조절 */
+            .upload-section {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.8rem;
+            }
+            
+            /* 문서 카드 스타일 조절 */
+            .doc-card {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .doc-title {
+                font-size: 0.8rem;
+            }
+            
+            .doc-info {
+                font-size: 0.7rem;
+            }
+            
+            /* 최근 대화 버튼 조절 */
+            .recent-chat-button {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.6rem;
+            }
+            
+            /* 사업장 선택 라디오 버튼 조절 */
+            .stRadio > label {
+                font-size: 0.8rem;
+            }
+            
+            /* 파일 정보 텍스트 조절 */
+            .file-info {
+                font-size: 0.75rem;
+            }
         }
     </style>
 """, unsafe_allow_html=True)
@@ -294,7 +388,7 @@ if 'conversation_id' not in st.session_state:
         st.session_state.recent_chats.insert(0, {
             'id': new_chat_id,
             'title': "새 대화",
-            'date': datetime.now().strftime('%Y-%m-%d'),
+            'date': datetime.now().strftime('%m-%d'),
             'messages': []
         })
 
@@ -433,7 +527,7 @@ with st.sidebar:
         if uploaded_files:
             st.markdown(f"""
                 <div class="file-info">
-                    📎 {files_count}개 파일 선택됨 | 💾 총 {total_size / (1024*1024):.1f}MB
+                    📎 {files_count}개 파일 선택됨 |  총 {total_size / (1024*1024):.1f}MB
                 </div>
             """, unsafe_allow_html=True)
 
@@ -550,7 +644,7 @@ if prompt := st.chat_input("메시지를 입력하세요... (Enter를 눌러 전
         'timestamp': timestamp
     })
 
-    # API 요청 부분
+    # API 청 부분
     assistant_placeholder = st.empty()
     answer = ''
 

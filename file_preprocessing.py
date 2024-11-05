@@ -7,6 +7,7 @@ import io
 import docx2txt
 import pandas as pd
 from pptx import Presentation
+import time
 
 # 별도의 API 키 설정 (전처리 워크플로우용)
 PREPROCESS_API_KEY = st.secrets["PREPROCESS_API_KEY"]
@@ -88,12 +89,26 @@ def preprocess_files(uploaded_files, dataset_id):
             'workflow_id': '6a157fa1-8f3d-4bde-8d8c-78df231a724c'
         }
         
-        workflow_response = requests.post(
-            PREPROCESS_API_URL,
-            headers=headers,
-            json=workflow_payload,
-            timeout=300
-        )
+        # 타임아웃 시간을 늘리고 재시도 로직 추가
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                workflow_response = requests.post(
+                    PREPROCESS_API_URL,
+                    headers=headers,
+                    json=workflow_payload,
+                    timeout=600  # 타임아웃을 10분으로 증가
+                )
+                break  # 성공시 루프 종료
+            except requests.exceptions.Timeout:
+                retry_count += 1
+                if retry_count == max_retries:
+                    st.error("서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
+                    return None
+                st.warning(f"처리 시간 초과. 재시도 중... ({retry_count}/{max_retries})")
+                time.sleep(5)  # 5초 대기 후 재시도
         
         if workflow_response.status_code != 200:
             st.error(f"상세 오류 정보:")

@@ -89,41 +89,21 @@ def preprocess_files(uploaded_files, dataset_id):
             'workflow_id': '6a157fa1-8f3d-4bde-8d8c-78df231a724c'
         }
         
-        max_retries = 3
-        retry_count = 0
-        total_timeout = 900  # 전체 타임아웃 15분으로 설정
+        # 진행 상태 표시
+        progress_text = "파일 처리 중..."
+        status_container = st.empty()
+        status_container.text(progress_text)
         
-        while retry_count < max_retries:
-            try:
-                # 워크플로우 요청 전송
-                workflow_response = requests.post(
-                    PREPROCESS_API_URL,
-                    headers=headers,
-                    json=workflow_payload,
-                    timeout=total_timeout  # 타임아웃 15분
-                )
-                
-                if workflow_response.status_code == 200:
-                    break
-                elif workflow_response.status_code == 504:
-                    raise requests.exceptions.Timeout
-                    
-            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-                retry_count += 1
-                if retry_count == max_retries:
-                    st.error("서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
-                    return None
-                st.warning(f"처리 시간 초과. 재시도 중... ({retry_count}/{max_retries})")
-                time.sleep(10)  # 10초 대기 후 재시도
+        # 단일 요청으로 처리 (10분 타임아웃)
+        workflow_response = requests.post(
+            PREPROCESS_API_URL,
+            headers=headers,
+            json=workflow_payload,
+            timeout=600  # 10분 타임아웃
+        )
         
-        if workflow_response.status_code != 200:
-            st.error(f"상세 오류 정보:")
-            st.error(f"상태 코드: {workflow_response.status_code}")
-            st.error(f"헤더: {workflow_response.headers}")
-            st.error(f"응답 내용: {workflow_response.text}")
-            return None
-
         if workflow_response.status_code == 200:
+            status_container.text("처리 완료!")
             result = workflow_response.json()
             file_url = result.get('data', {}).get('outputs', {}).get('result')
             
@@ -172,10 +152,14 @@ def preprocess_files(uploaded_files, dataset_id):
                 return None
                 
         else:
-            st.error(f"⚠️ 워크플로우 실행 실패: {workflow_response.status_code}")
+            status_container.error("처리 실패")
+            st.error(f"상태 코드: {workflow_response.status_code}")
             st.error(f"응답 내용: {workflow_response.text}")
             return None
 
+    except requests.exceptions.Timeout:
+        st.error("처리 시간이 초과되었습니다 (10분). 잠시 후 다시 시도해주세요.")
+        return None
     except Exception as e:
         st.error(f"⚠️ 처리 중 오류 발생: {str(e)}")
         st.error(traceback.format_exc())

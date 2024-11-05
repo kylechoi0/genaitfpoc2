@@ -164,3 +164,48 @@ def preprocess_files(uploaded_files, dataset_id):
         st.error(f"⚠️ 처리 중 오류 발생: {str(e)}")
         st.error(traceback.format_exc())
         return None
+
+def upload_to_knowledge_directly(file, dataset_id):
+    try:
+        headers = {
+            'Authorization': f'Bearer {KNOWLEDGE_API_KEY}'
+        }
+        
+        # multipart/form-data 형식으로 데이터 준비
+        files = {
+            'file': (file.name, file, 'application/octet-stream')
+        }
+        
+        # 자동 처리 설정
+        data = {
+            'data': json.dumps({
+                'indexing_technique': 'high_quality',
+                'process_rule': {
+                    'mode': 'automatic'  # 'auto'가 아닌 'automatic'으로 수정
+                }
+            })
+        }
+        
+        # 파일 업로드 요청
+        response = requests.post(
+            f'https://mir-api.52g.ai/v1/datasets/{dataset_id}/document/create_by_file',
+            headers=headers,
+            files=files,
+            data=data,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result
+        else:
+            st.error(f"파일 업로드 실패 (상태 코드: {response.status_code})")
+            st.error(f"오류 내용: {response.text}")
+            return None
+            
+    except requests.exceptions.Timeout:
+        st.error("업로드 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
+        return None
+    except Exception as e:
+        st.error(f"파일 처리 중 오류 발생: {str(e)}")
+        return None

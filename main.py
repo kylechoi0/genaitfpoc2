@@ -3,7 +3,7 @@ import requests
 import json
 from datetime import datetime
 import uuid
-from file_preprocessing import preprocess_files  # Ensure this module is correctly implemented
+from file_preprocessing import preprocess_files, upload_to_knowledge_directly  # Ensure this module is correctly implemented
 import traceback
 import html  # HTML 이스케이프를 위해 추가
 
@@ -346,6 +346,21 @@ st.markdown("""
                 font-size: 0.75rem;
             }
         }
+
+        .toggle-container {
+            background-color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 12px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e3e9;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .toggle-container:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -511,7 +526,10 @@ with st.sidebar:
 
     # 파일 업로드 섹션 수정
     st.markdown('<div class="section-title">📁 문서 자동 전처리/업로드</div>', unsafe_allow_html=True)
-    st.markdown('<div class="upload-section">배포 환경에서는 처리 속도가 느립니다. <br> 필요 시, 문서 메일 접수 (cjk1306@gspoge.com)</div>', unsafe_allow_html=True)
+
+    # 전처리 모드 토글을 div로 감싸서 표시
+    preprocess_mode = st.toggle('🔄 전처리 모드(대용량 파일은 OFF)', value=False, help="전처리 모드를 켜면 문서를 LLM으로 전처리 후 업로드합니다.")
+
     with st.form(key='file_upload_form'):
         uploaded_files = st.file_uploader(
             "",
@@ -543,11 +561,19 @@ with st.sidebar:
                 else:
                     with st.spinner("처리 중..."):
                         try:
-                            result_link = preprocess_files(uploaded_files, st.session_state.dataset_id)
-                            if result_link:
-                                st.success("✅ 처리 완료!")
-                            else:
-                                st.error("❌ 처리 실패")
+                            for file in uploaded_files:
+                                if preprocess_mode:
+                                    # 기존 전처리 로직 사용
+                                    result = preprocess_files([file], st.session_state.dataset_id)
+                                    if result:
+                                        st.success(f"'{file.name}' 파일 전처리 완료!")
+                                    else:
+                                        st.error(f"'{file.name}' 파일 전처리 실패")
+                                else:
+                                    # 직접 지식 데이터셋에 업로드
+                                    result = upload_to_knowledge_directly(file, st.session_state.dataset_id)
+                                    if not result:
+                                        st.error(f"'{file.name}' 파일 업로드 실패")
                         except Exception as e:
                             st.error(f"❌ 오류 발생: {str(e)}")
             else:
